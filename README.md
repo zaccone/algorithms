@@ -1,2 +1,2 @@
 # algorithms
-Various algorithms that is (most probably) implemented for fun or training
+Various algorithms that I (most probably) implemented for fun or training
