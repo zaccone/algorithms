@@ -1,22 +1,39 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
-func printArr(in chan int, nl chan bool) {
+var wg sync.WaitGroup
+
+const (
+	CLOSE   = 1
+	NEWLINE = 2
+)
+
+func printArr(in chan int, nl chan int) {
+	wg.Add(1)
+	defer wg.Done()
 	for {
 		select {
-		case n := <-in:
-			fmt.Printf("%d ", n)
-		case <-nl:
-			fmt.Printf("\n")
+		case number := <-in:
+			fmt.Printf("%d ", number)
+		case other := <-nl:
+			if other == NEWLINE {
+				fmt.Printf("\n")
+			} else {
+				return
+			}
 		}
 	}
 }
 
 func isort(c chan int) {
-
+	wg.Add(1)
+	defer wg.Done()
 	arr := make([]int, 0, 0)
-	nl := make(chan bool, 0)
+	nl := make(chan int, 0)
 	in := make(chan int, 0)
 
 	size := 0
@@ -33,8 +50,9 @@ func isort(c chan int) {
 		for _, it := range arr {
 			in <- it
 		}
-		nl <- true
+		nl <- NEWLINE
 	}
+	nl <- CLOSE
 }
 
 func main() {
@@ -46,6 +64,6 @@ func main() {
 		c <- item
 	}
 	close(c)
-
+	wg.Wait()
 	fmt.Printf("\n")
 }
